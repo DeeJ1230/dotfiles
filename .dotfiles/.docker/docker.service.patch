@@ -1,0 +1,12 @@
+--- .dotfiles/docker.service	2018-04-12 13:58:25.317766776 +0200
++++ .dotfiles/docker.service.new	2018-04-12 13:58:49.787040328 +0200
+@@ -10,7 +10,8 @@
+ # the default is not to use systemd for cgroups because the delegate issues still
+ # exists and systemd currently does not support the cgroup feature set required
+ # for containers run by docker
+-ExecStart=/usr/bin/dockerd -H fd://
++EnvironmentFile=-/etc/default/docker
++ExecStart=/usr/bin/dockerd $DOCKER_OPTS -H fd:// -H unix:///var/run/docker.sock
+ ExecReload=/bin/kill -s HUP $MAINPID
+ LimitNOFILE=1048576
+ # Having non-zero Limit*s causes performance problems due to accounting overhead

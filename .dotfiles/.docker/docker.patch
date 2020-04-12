@@ -1,0 +1,11 @@
+--- .dotfiles/docker	2018-04-12 15:42:06.519433472 +0200
++++ .dotfiles/docker.new	2018-04-12 15:43:12.005948406 +0200
+@@ -11,7 +11,7 @@
+ #DOCKERD="/usr/local/bin/dockerd"
+ 
+ # Use DOCKER_OPTS to modify the daemon startup options.
+-#DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4"
++DOCKER_OPTS="--dns 8.8.8.8 --dns 8.8.4.4 --insecure-registry db-docker-kube.artifactory.danskenet.net --insecure-registry db-docker-a2a.artifactory.danskenet.net --insecure-registry db-docker-pay2.artifactory.danskenet.net --log-opt max-size=1M --log-opt max-file=1"
+ 
+ # If you need Docker to use an HTTP proxy, it can also be specified here.
+ #export http_proxy="http://127.0.0.1:3128/"

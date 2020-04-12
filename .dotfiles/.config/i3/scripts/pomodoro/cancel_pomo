@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+SCRIPT_NAME=pomo_runner.py
+pkill --signal SIGINT -f $SCRIPT_NAME
+echo "Cancel"

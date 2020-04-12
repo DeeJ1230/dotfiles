@@ -1,0 +1,17 @@
+{
+  "telemetry.enableTelemetry": false,
+  "telemetry.enableCrashReporter": false,
+  "editor.fontFamily": "mononoki",
+  "editor.fontSize": 16,
+  "editor.tabSize": 2,
+  "workbench.colorTheme": "Tomorrow Night Blue",
+  "terminal.integrated.fontFamily": "mononoki",
+  "terminal.integrated.fontSize": 14,
+  "window.zoomLevel": 1,
+  "workbench.startupEditor": "none",
+  "explorer.openEditors.visible": 0,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "editor.minimap.enabled": false,
+  "workbench.editor.enablePreview": false
+}
