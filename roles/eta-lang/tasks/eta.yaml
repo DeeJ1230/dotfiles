@@ -1,0 +1,35 @@
+- name: install eta dependencies
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - openjdk-11-jdk
+
+- name: create installers temp directory
+  file: path=~/.local/tmp state=directory
+
+- name: check if etlas installer already downloaded
+  stat: path=~/.local/tmp/etlas
+  register: etlas_installer_stat_output
+
+- name: download etlas
+  get_url:
+    url: https://cdnverify.eta-lang.org/eta-binaries/etlas-1.4.0.0/binaries/x86_64-linux/etlas
+    dest: ~/.local/tmp/etlas
+  when: etlas_installer_stat_output.stat.exists == False
+
+- name: prepare etlas installer
+  file:
+    path: ~/.local/tmp/etlas
+    mode: 0755
+  when: etlas_installer_stat_output.stat.exists == False
+
+- name: update etlas
+  command: ~/.local/tmp/etlas update
+  when: etlas_installer_stat_output.stat.exists == False
+
+- name: install eta
+  command: ~/.local/tmp/etlas select latest
+  when: etlas_installer_stat_output.stat.exists == False

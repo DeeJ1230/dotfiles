@@ -1,0 +1,12 @@
+- name: install firefox
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - firefox
+
+# - name: install opera
+#   become: yes
+#   command: snap install opera

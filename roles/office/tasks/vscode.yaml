@@ -1,0 +1,24 @@
+- name: create installers directory
+  file: path=~/.local/tmp state=directory
+
+- name: check if vscode installer already downloaded
+  stat: path=~/.local/tmp/vscode.deb
+  register: vscode_installer_stat_output
+
+- name: download vscode
+  get_url:
+    url: https://go.microsoft.com/fwlink/?LinkID=760868
+    dest: ~/.local/tmp/vscode.deb
+  when: vscode_installer_stat_output.stat.exists == False
+
+- name: install vscode
+  become: yes
+  apt:
+    deb: "/home/{{ ansible_user }}/.local/tmp/vscode.deb"
+  when: vscode_installer_stat_output.stat.exists == False
+
+- name: create vscode settings directory
+  file: path=~/.config/Code/User state=directory
+
+- name: apply vscode config
+  copy: src=./.dotfiles/.config/Code/User/settings.json dest=~/.config/Code/User/settings.json

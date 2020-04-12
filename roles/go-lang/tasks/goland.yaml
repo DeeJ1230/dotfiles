@@ -1,0 +1,34 @@
+# https://download-cf.jetbrains.com/go/goland-2018.2.3.tar.gz
+
+- name: check if go-land already installed
+  stat:
+    path: "~/.local/apps/go-land/goland-{{ goland_version }}.tar.gz"
+  register: goland_stat_output
+
+- name: create go-land target directory
+  file: path=~/.local/apps/go-land state=directory
+  when: goland_stat_output.stat.exists == False
+
+- name: download go-land
+  get_url:
+    url: "https://download-cf.jetbrains.com/go/goland-{{ goland_version }}.tar.gz"
+    dest: "~/.local/apps/go-land/goland-{{ goland_version }}.tar.gz"
+    mode: 0755
+  when: goland_stat_output.stat.exists == False
+
+- name: unpack go-land
+  unarchive:
+    src: "~/.local/apps/go-land/goland-{{ goland_version }}.tar.gz"
+    dest: ~/.local/apps/go-land/
+  when: goland_stat_output.stat.exists == False
+
+- name: create go-land symlink directory
+  file: path=~/.local/bin state=directory
+  when: goland_stat_output.stat.exists == False
+
+- name: create symlink to go-land
+  file:
+    src: "~/.local/apps/go-land/GoLand-{{ goland_version }}/bin/goland.sh"
+    dest: ~/.local/bin/goland
+    state: link
+  when: goland_stat_output.stat.exists == False

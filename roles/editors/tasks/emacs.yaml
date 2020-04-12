@@ -1,0 +1,13 @@
+- name: install emacs with org-mode
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - emacs25-lucid
+  - org-mode
+  - org-mode-doc
+
+- name: apply emacs config
+  copy: src=./.dotfiles/.emacs dest=~/.emacs

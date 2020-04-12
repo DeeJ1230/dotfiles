@@ -1,0 +1,34 @@
+- name: check if tiddly already installed
+  stat: path=~/.local/apps/tiddly/tiddly-desktop
+  register: tiddly_stat_output
+
+- name: create installers temp directory
+  file: path=~/.local/tmp state=directory
+  when: tiddly_stat_output.stat.exists == False
+
+- name: download tiddly
+  get_url:
+    url: https://github.com/Jermolene/TiddlyDesktop/releases/download/v0.0.13/tiddlydesktop-linux64-v0.0.13.zip
+    dest: ~/.local/tmp/tiddlydesktop-linux64-v0.0.13.zip
+  when: tiddly_stat_output.stat.exists == False
+
+- name: create tiddly target directory
+  file: path=~/.local/apps/tiddly state=directory
+  when: tiddly_stat_output.stat.exists == False
+
+- name: unpack tiddly
+  unarchive:
+    src: ~/.local/tmp/tiddlydesktop-linux64-v0.0.13.zip
+    dest: ~/.local/apps/tiddly
+  when: tiddly_stat_output.stat.exists == False
+
+- name: create tiddly symlink directory
+  file: path=~/.local/bin state=directory
+  when: tiddly_stat_output.stat.exists == False
+
+- name: create symlink to tiddly
+  file:
+    src: ~/.local/apps/tiddly/TiddlyDesktop-linux64-v0.0.13/nw
+    dest: ~/.local/bin/tiddly
+    state: link
+  when: tiddly_stat_output.stat.exists == False

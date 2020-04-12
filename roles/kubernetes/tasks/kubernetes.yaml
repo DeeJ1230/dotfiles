@@ -1,0 +1,49 @@
+- name: add kubernetes gpg
+  become: yes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: add kubernetes repository
+  become: true
+  apt_repository:
+    repo: "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+    state: present
+
+- name: install kubernetes components
+  become: true
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - kubectl
+  - kubelet
+  - kubeadm
+
+#- name: check if kc already installed
+#  stat: path=~/.local/apps/kc/kc
+#  register: kc_stat_output
+
+#- name: create kc install directory
+#  file: path=~/.local/apps/kc state=directory
+#  when: kc_stat_output.stat.exists == False
+
+#- name: download kc
+#  get_url:
+#    url: https://github.com/kuznero/kubectl-ex/releases/download/v0.2/kc
+#    dest: ~/.local/apps/kc/kc
+#    mode: 0755
+#  when: kc_stat_output.stat.exists == False
+
+#- name: create kc symlink directory
+#  file: path=~/.local/bin state=directory
+#  when: kc_stat_output.stat.exists == False
+
+#- name: create symlink to kc
+#  file:
+#    src: ~/.local/apps/kc/kc
+#    dest: ~/.local/bin/kc
+#    state: link
+#  when: kc_stat_output.stat.exists == False
+

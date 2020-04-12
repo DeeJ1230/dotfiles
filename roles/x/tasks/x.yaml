@@ -1,0 +1,23 @@
+- name: install i3 components
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - i3
+  - feh
+  - rofi
+  - i3lock
+  - i3lock-fancy
+  - i3blocks
+  - wireless-tools
+  - sysstat
+  - acpi
+  - libnotify-bin
+  - notify-osd
+
+- name: apply i3 config
+  synchronize:
+    src: ./.dotfiles/.config/i3
+    dest: ~/.config

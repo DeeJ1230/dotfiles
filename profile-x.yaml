@@ -1,0 +1,21 @@
+- hosts: all
+  roles:
+  #- common
+  #- browsers
+  #- docker
+  #- dotnet
+  #- editors
+  #- eta-lang
+  #- gcloud
+  #- go-lang
+  #- haskell-lang
+  #- kubernetes
+  #- latex
+  #- office
+  #- postman
+  #- python-lang
+  #- security
+  #- snappy
+  #- sublime
+  #- virtualbox
+  - x

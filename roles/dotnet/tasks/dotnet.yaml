@@ -1,0 +1,23 @@
+- name: add microsoft gpg
+  become: yes
+  apt_key:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    state: present
+  when: ansible_distribution_release == "bionic"
+
+- name: add dotnet core repository in bionic
+  become: true
+  apt_repository:
+    repo: "deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod bionic main"
+    state: present
+  when: ansible_distribution_release == "bionic"
+
+- name: install dotnet-sdk
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - dotnet-sdk-2.1
+  when: ansible_distribution_release == "bionic"

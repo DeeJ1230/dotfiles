@@ -1,0 +1,39 @@
+- name: install vim
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - vim
+  - vim-gui-common
+  - git-core
+  - wmctrl
+
+- name: apply vim config
+  copy: src=./.dotfiles/.vimrc dest=~/.vimrc
+
+- name: check if vim plugins already installed
+  stat: path=~/.vim/pack/kuznero/start
+  register: vimplugins_stat_output
+
+- name: create vim plugins directory
+  file: path=~/.vim/pack/kuznero/start state=directory
+  when: vimplugins_stat_output.stat.exists == False
+
+- name: fetch vim plugins
+  git:
+    repo: "https://github.com/{{item.value}}"
+    dest: "~/.vim/pack/kuznero/start/{{item.key}}"
+  with_dict: "{{ vim_plugins }}"
+  when: vimplugins_stat_output.stat.exists == False
+
+- name: build vimproc plugin
+  command: make
+  args:
+    chdir: ~/.vim/pack/kuznero/start/vimproc
+  when: vimplugins_stat_output.stat.exists == False
+
+- name: apply gtk config
+  copy: src=./.dotfiles/.gtkrc-2.0 dest=~/.gtkrc-2.0
+

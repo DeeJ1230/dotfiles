@@ -1,0 +1,18 @@
+- name: create installers directory
+  file: path=~/.local/tmp state=directory
+
+- name: check if boostnote installer already downloaded
+  stat: path=~/.local/tmp/boostnote_0.11.7_amd64.deb
+  register: boostnote_installer_stat_output
+
+- name: download boostnote
+  get_url:
+    url: https://github.com/BoostIO/boost-releases/releases/download/v0.11.7/boostnote_0.11.7_amd64.deb
+    dest: ~/.local/tmp/boostnote_0.11.7_amd64.deb
+  when: boostnote_installer_stat_output.stat.exists == False
+
+- name: install boostnote
+  become: yes
+  apt:
+    deb: "/home/{{ ansible_user }}/.local/tmp/boostnote_0.11.7_amd64.deb"
+  when: boostnote_installer_stat_output.stat.exists == False

@@ -1,0 +1,37 @@
+- name: create installers directory
+  file: path=~/.local/tmp state=directory
+
+- name: check if postman installer already downloaded
+  stat: path=~/.local/tmp/postman.tar.gz
+  register: postman_installer_stat_output
+
+- name: download postman
+  get_url:
+    url: https://dl.pstmn.io/download/latest/linux64
+    dest: ~/.local/tmp/postman.tar.gz
+  when: postman_installer_stat_output.stat.exists == False
+
+- name: unpack postman
+  unarchive:
+    src: ~/.local/tmp/postman.tar.gz
+    dest: ~/.local/tmp
+  when: postman_installer_stat_output.stat.exists == False
+
+- name: create postman target directory
+  file: path=~/.local/apps state=directory
+  when: postman_installer_stat_output.stat.exists == False
+
+- name: install postman
+  command: mv ~/.local/tmp/Postman ~/.local/apps/
+  when: postman_installer_stat_output.stat.exists == False
+
+- name: create postman symlink directory
+  file: path=~/.local/bin state=directory
+  when: postman_installer_stat_output.stat.exists == False
+
+- name: create symlink to postman
+  file:
+    src: ~/.local/apps/Postman/Postman
+    dest: ~/.local/bin/postman
+    state: link
+  when: postman_installer_stat_output.stat.exists == False

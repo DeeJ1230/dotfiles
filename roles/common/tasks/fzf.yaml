@@ -1,0 +1,34 @@
+- name: check if fzf already installed
+  stat: path=~/.local/bin/fzf
+  register: fzf_stat_output
+
+- name: create installers temp directory
+  file: path=~/.local/tmp state=directory
+  when: fzf_stat_output.stat.exists == False
+
+- name: download fzf
+  get_url:
+    url: https://github.com/junegunn/fzf-bin/releases/download/0.17.4/fzf-0.17.4-linux_amd64.tgz
+    dest: ~/.local/tmp/fzf-0.17.4-linux_amd64.tgz
+  when: fzf_stat_output.stat.exists == False
+
+- name: create fzf temp directory
+  file: path=~/.local/tmp/fzf state=directory
+  when: fzf_stat_output.stat.exists == False
+
+- name: unpack fzf
+  unarchive:
+    src: ~/.local/tmp/fzf-0.17.4-linux_amd64.tgz
+    dest: ~/.local/tmp/fzf
+  when: fzf_stat_output.stat.exists == False
+
+- name: create fzf target directory
+  file: path=~/.local/bin state=directory
+  when: fzf_stat_output.stat.exists == False
+
+- name: install fzf
+  copy:
+    src: ~/.local/tmp/fzf/fzf
+    dest: ~/.local/bin
+    mode: 0755
+  when: fzf_stat_output.stat.exists == False

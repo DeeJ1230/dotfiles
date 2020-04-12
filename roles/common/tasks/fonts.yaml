@@ -1,0 +1,109 @@
+- name: install other fonts
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  #- fonts-fantasque-sans
+  #- fonts-firacode
+  #- fonts-inconsolata
+  #- fonts-jura
+  #- fonts-monoid
+  #- fonts-mononoki
+  - fonts-noto-mono
+  #- ttf-mscorefonts-installer
+  #- ttf-xfree86-nonfree
+  #- fonts-powerline
+
+#- name: create installers temp directory
+#  file: path=~/.local/tmp state=directory
+#
+#- name: check if nerd-fonts installer exists
+#  stat: path=~/.local/tmp/nerd-fonts
+#  register: nerd_fonts_installer_stat_output
+#
+#- name: fetch nerd-fonts repo
+#  git:
+#    repo: https://github.com/ryanoasis/nerd-fonts.git
+#    dest: ~/.local/tmp/nerd-fonts
+#    depth: 1
+#  when: nerd_fonts_installer_stat_output.stat.exists == False
+#
+#- name: install nerd-fonts
+#  command: ~/.local/tmp/nerd-fonts/install.sh FONT_NAME
+#  when: nerd_fonts_installer_stat_output.stat.exists == False
+#  register: nerd_fonts_install_output
+#
+#- name: nerd-fonts install output
+#  debug:
+#    msg: '{{ nerd_fonts_install_output.stdout }}'
+#  when: nerd_fonts_installer_stat_output.stat.exists == False
+
+- name: create local fonts directory
+  file: path=~/.local/share/fonts state=directory
+
+- name: check if noto sans mono nerd font already installed
+  stat:
+    path: "~/.local/share/fonts/Noto Sans Mono Bold Nerd Font Complete.ttf"
+  register: fonts_installed_stat_output
+
+- name: install noto sans mono nerd font
+  get_url:
+    url: "https://raw.githubusercontent.com/ryanoasis/nerd-fonts/master/patched-fonts/Noto/Sans-Mono/complete/{{item.path}}"
+    dest: "~/.local/share/fonts/{{item.name}}"
+  with_items:
+  - { name: "Noto Sans Mono Bold Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Bold%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Thin Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Thin%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Black Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Black%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Light Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Light%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Medium Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Medium%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Regular Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Regular%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono SemiBold Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20SemiBold%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Bold Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Bold%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono Condensed Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono ExtraBold Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20ExtraBold%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Thin Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Thin%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono Black Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Black%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono ExtraLight Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20ExtraLight%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Light Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Light%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono Medium Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Medium%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono Regular Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Regular%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono SemiBold Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20SemiBold%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono SemiCondensed Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20SemiCondensed%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed Bold Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Bold%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono Condensed Thin Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Thin%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono ExtraBold Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20ExtraBold%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono ExtraCondensed Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20ExtraCondensed%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed Black Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Black%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed Light Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Light%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono ExtraLight Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20ExtraLight%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono Condensed Medium Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Medium%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed SemiBold Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Condensed%20SemiBold%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono SemiCondensed Bold Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20SemiCondensed%20Bold%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono SemiCondensed Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20SemiCondensed%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono SemiCondensed Thin Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20SemiCondensed%20Thin%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed Bold Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Bold%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono Condensed ExtraBold Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Condensed%20ExtraBold%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed Thin Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Thin%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono ExtraCondensed Bold Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20ExtraCondensed%20Bold%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono ExtraCondensed Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20ExtraCondensed%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono ExtraCondensed Thin Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20ExtraCondensed%20Thin%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono SemiCondensed Black Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20SemiCondensed%20Black%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono SemiCondensed Light Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20SemiCondensed%20Light%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed Black Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Black%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono Condensed ExtraLight Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20Condensed%20ExtraLight%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed Light Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Light%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono ExtraCondensed Black Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20ExtraCondensed%20Black%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono ExtraCondensed Light Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20ExtraCondensed%20Light%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono SemiCondensed Medium Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20SemiCondensed%20Medium%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono Condensed Medium Nerd Font Complete Mono.ttf", path: "Noto%20Sans%20Mono%20Condensed%20Medium%20Nerd%20Font%20Complete%20Mono.ttf" }
+  - { name: "Noto Sans Mono ExtraCondensed Medium Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20ExtraCondensed%20Medium%20Nerd%20Font%20Complete.ttf" }
+  - { name: "Noto Sans Mono SemiCondensed SemiBold Nerd Font Complete.ttf", path: "Noto%20Sans%20Mono%20SemiCondensed%20SemiBold%20Nerd%20Font%20Complete.ttf" }
+  when: fonts_installed_stat_output.stat.exists == False
+
+- name: install noto sans mono nerd font
+  command: fc-cache -f -v
+  when: fonts_installed_stat_output.stat.exists == False
+  register: nerd_fonts_install_output

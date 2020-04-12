@@ -1,0 +1,51 @@
+- name: check if turtl already installed
+  stat: path=~/.local/apps/turtl/turtl
+  register: turtl_stat_output
+
+- name: create installers temp directory
+  file: path=~/.local/tmp state=directory
+  when: turtl_stat_output.stat.exists == False
+
+- name: download turtl
+  get_url:
+    url: https://turtlapp.com/releases/desktop/turtl-linux64-0.6.4.tar.bz2
+    dest: ~/.local/tmp/turtl-linux64-0.6.4.tar.bz2
+  when: turtl_stat_output.stat.exists == False
+
+- name: create turtl temp directory
+  file: path=~/.local/tmp/turtl state=directory
+  when: turtl_stat_output.stat.exists == False
+
+- name: unpack turtl
+  unarchive:
+    src: ~/.local/tmp/turtl-linux64-0.6.4.tar.bz2
+    dest: ~/.local/tmp/turtl
+  when: turtl_stat_output.stat.exists == False
+
+- name: create turtl target directory
+  file: path=~/.local/apps/turtl state=directory
+  when: turtl_stat_output.stat.exists == False
+
+- name: create turtl target directory for desktop icons
+  file: path=~/.local/share/applications/ state=directory
+  when: turtl_stat_output.stat.exists == False
+
+- name: install turtl
+  command: ~/.local/tmp/turtl/turtl-linux64/install.sh ~/.local/apps/turtl
+  register: turtl_output
+  when: turtl_stat_output.stat.exists == False
+
+- name: create turtl symlink directory
+  file: path=~/.local/bin state=directory
+  when: turtl_stat_output.stat.exists == False
+
+- name: create symlink to turtl
+  file:
+    src: ~/.local/apps/turtl/turtl
+    dest: ~/.local/bin/turtl
+    state: link
+  when: turtl_stat_output.stat.exists == False
+
+#- debug:
+#    var: turtl_output
+#  when: turtl_stat_output.stat.exists == False

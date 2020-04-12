@@ -1,0 +1,16 @@
+- name: add veracrypt repository
+  become: true
+  apt_repository:
+    repo: ppa:unit193/encryption
+    state: present
+
+- name: install security tools
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - veracrypt
+  - keepass2
+  - gnupg-agent

@@ -1,0 +1,8 @@
+- name: install archivers
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - p7zip-full

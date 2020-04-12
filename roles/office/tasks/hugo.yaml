@@ -1,0 +1,45 @@
+- name: check if hugo already installed
+  stat: path=~/.local/apps/hugo/hugo
+  register: hugo_stat_output
+
+- name: create installers temp directory
+  file: path=~/.local/tmp state=directory
+  when: hugo_stat_output.stat.exists == False
+
+- name: download hugo
+  get_url:
+    url: https://github.com/gohugoio/hugo/releases/download/v0.41/hugo_0.41_Linux-64bit.tar.gz
+    dest: ~/.local/tmp/hugo_0.41_Linux-64bit.tar.gz
+  when: hugo_stat_output.stat.exists == False
+
+- name: create hugo temp directory
+  file: path=~/.local/tmp/hugo state=directory
+  when: hugo_stat_output.stat.exists == False
+
+- name: unpack hugo
+  unarchive:
+    src: ~/.local/tmp/hugo_0.41_Linux-64bit.tar.gz
+    dest: ~/.local/tmp/hugo
+  when: hugo_stat_output.stat.exists == False
+
+- name: create hugo target directory
+  file: path=~/.local/apps/hugo state=directory
+  when: hugo_stat_output.stat.exists == False
+
+- name: install hugo
+  copy:
+    src: ~/.local/tmp/hugo/hugo
+    dest: ~/.local/apps/hugo/hugo
+    mode: 0755
+  when: hugo_stat_output.stat.exists == False
+
+- name: create hugo symlink directory
+  file: path=~/.local/bin state=directory
+  when: hugo_stat_output.stat.exists == False
+
+- name: create symlink to hugo
+  file:
+    src: ~/.local/apps/hugo/hugo
+    dest: ~/.local/bin/hugo
+    state: link
+  when: hugo_stat_output.stat.exists == False

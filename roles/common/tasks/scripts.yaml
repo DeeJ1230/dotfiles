@@ -1,0 +1,15 @@
+- name: copy scripts
+  synchronize:
+    src: ./.dotfiles/.scripts
+    dest: ~/
+
+- name: create symlinks to scripts
+  file:
+    src: "~/.scripts/{{ item.path }}"
+    dest: "~/.local/bin/{{ item.dest }}"
+    state: link
+  with_items:
+    - { path: 'disable-touchpad.sh', dest: 'disable-touchpad' }
+    - { path: 'enable-touchpad.sh', dest: 'enable-touchpad' }
+    - { path: 'mimport.sh', dest: 'mimport' }
+    - { path: 'ediff.sh', dest: 'ediff' }

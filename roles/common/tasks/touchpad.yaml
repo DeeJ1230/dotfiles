@@ -1,0 +1,13 @@
+- name: install xinput
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - xinput
+
+# In order to be able to disable/enable touchpad
+# 1. find the right `id` for your device by issueing `xinput list`
+# 2. to disable the device, run `xinput disable 12` (assuming `12` is the device id you found)
+# 3. to enable the device again, simply run `xinput enable 12`

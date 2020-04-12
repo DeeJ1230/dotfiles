@@ -1,0 +1,20 @@
+- name: install common tools
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - htop
+  - make
+  - build-essential
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - software-properties-common
+  - pmount
+  - exif
+  - ffmpeg
+  # - nmon
+  # - dstat
+  # - krusader

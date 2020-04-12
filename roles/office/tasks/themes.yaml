@@ -1,0 +1,48 @@
+- name: add noobslab icons repository
+  become: true
+  apt_repository:
+    repo: ppa:noobslab/icons
+    state: present
+
+- name: install some icons themes
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - gnome-tweaks
+  - buuf-remix-icons
+  - faenza-icon-theme
+
+- name: check if absolute-themes already installed
+  stat: path=~/.themes/absolute
+  register: absolute_themes_stat_output
+
+- name: create installers temp directory
+  file: path=~/.local/tmp state=directory
+  when: absolute_themes_stat_output.stat.exists == False
+
+- name: create themes directory
+  file: path=~/.themes state=directory
+  when: absolute_themes_stat_output.stat.exists == False
+
+- name: download absolute-themes
+  get_url:
+    url: https://github.com/kuznero/files/raw/master/126326-absolute-themes.tar.bz2
+    dest: ~/.local/tmp/absolute-themes.tar.bz2
+  when: absolute_themes_stat_output.stat.exists == False
+
+- name: unpack absolute-themes
+  unarchive:
+    src: ~/.local/tmp/absolute-themes.tar.bz2
+    dest: ~/.local/tmp
+  when: absolute_themes_stat_output.stat.exists == False
+
+- name: install absolute-themes
+  copy: src=~/.local/tmp/absolute-themes/ dest=~/.themes/
+  when: absolute_themes_stat_output.stat.exists == False
+
+#- debug:
+#    var: absolute_themes_output
+#  when: absolute_themes_stat_output.stat.exists == False

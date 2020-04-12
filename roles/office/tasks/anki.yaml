@@ -1,0 +1,29 @@
+- name: create installers directory
+  file: path=~/.local/tmp state=directory
+
+- name: check if anki installer already downloaded
+  stat: path=~/.local/tmp/anki-2.0.50-amd64.tar.bz2
+  register: anki_installer_stat_output
+
+- name: download anki
+  get_url:
+    url: https://apps.ankiweb.net/downloads/current/anki-2.0.50-amd64.tar.bz2
+    dest: ~/.local/tmp/anki-2.0.50-amd64.tar.bz2
+  when: anki_installer_stat_output.stat.exists == False
+
+- name: create unpack directory
+  file: path=~/.local/tmp/anki state=directory
+  when: anki_installer_stat_output.stat.exists == False
+
+- name: unpack anki
+  unarchive:
+    src: ~/.local/tmp/anki-2.0.50-amd64.tar.bz2
+    dest: ~/.local/tmp/anki
+  when: anki_installer_stat_output.stat.exists == False
+
+- name: install anki
+  become: yes
+  command: 'make install'
+  args:
+    chdir: "/home/{{ ansible_user }}/.local/tmp/anki/anki-2.0.50"
+  when: anki_installer_stat_output.stat.exists == False

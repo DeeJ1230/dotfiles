@@ -1,0 +1,52 @@
+# To uninstall: rm -rf ~/.local/apps/go-dep ~/.local/bin/dep ~/.local/bin/go*
+
+- name: create installers directory
+  file: path=~/.local/bin/golang state=directory
+
+- name: check if go installer already downloaded
+  stat: path=~/.local/bin/go1.11.1.linux-amd64.tar.gz
+  register: go_installer_stat_output
+
+- name: download go
+  get_url:
+    url: https://dl.google.com/go/go1.11.1.linux-amd64.tar.gz
+    dest: ~/.local/bin/go1.11.1.linux-amd64.tar.gz
+  when: go_installer_stat_output.stat.exists == False
+
+- name: unpack go
+  unarchive:
+    src: ~/.local/bin/go1.11.1.linux-amd64.tar.gz
+    dest: ~/.local/bin/golang
+  when: go_installer_stat_output.stat.exists == False
+
+- name: enable go
+  shell: |
+    echo 'export GOROOT=~/.local/bin/golang/go' >> ~/.bashrc
+    echo 'export PATH=$GOROOT/bin:$PATH' >> ~/.bashrc
+  when: go_installer_stat_output.stat.exists == False
+
+- name: check if go-dep already installed
+  stat: path=~/.local/apps/go-dep/dep
+  register: godep_stat_output
+
+- name: create go-dep target directory
+  file: path=~/.local/apps/go-dep state=directory
+  when: godep_stat_output.stat.exists == False
+
+- name: download go-dep
+  get_url:
+    url: https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64
+    dest: ~/.local/apps/go-dep/dep
+    mode: 0755
+  when: godep_stat_output.stat.exists == False
+
+- name: create go-dep symlink directory
+  file: path=~/.local/bin state=directory
+  when: godep_stat_output.stat.exists == False
+
+- name: create symlink to go-dep
+  file:
+    src: ~/.local/apps/go-dep/dep
+    dest: ~/.local/bin/dep
+    state: link
+  when: godep_stat_output.stat.exists == False

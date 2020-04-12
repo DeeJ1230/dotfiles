@@ -1,0 +1,116 @@
+- name: install xmind dependencies
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - openjdk-11-jdk
+  - libgtk2.0-0
+  - libwebkitgtk-1.0-0
+  - lame
+  - libc6
+  - libglib2.0-0
+
+- name: create installers directory
+  file: path=~/.local/tmp/xmind state=directory
+
+- name: check if xmind installer already downloaded
+  stat: path=~/.local/apps/xmind
+  register: xmind_installer_stat_output
+
+- name: download xmind
+  get_url:
+    url: https://www.xmind.net/xmind/downloads/xmind-8-update7-linux.zip
+    dest: ~/.local/tmp/xmind-8-update7-linux.zip
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: unpack xmind
+  unarchive:
+    src: ~/.local/tmp/xmind-8-update7-linux.zip
+    dest: ~/.local/tmp/xmind
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: cleanup xmind installer directory
+  file:
+    path: ~/.local/tmp/xmind/XMind_i386
+    state: absent
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: create xmind settings directory
+  file:
+    path: ~/.config/xmind/workspace
+    state: directory
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: prepare xmind config 1
+  synchronize:
+    src: ~/.local/tmp/xmind/XMind_amd64/configuration
+    dest: ~/.config/xmind/
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: prepare xmind config 2
+  synchronize:
+    src: ~/.local/tmp/xmind/XMind_amd64/p2
+    dest: ~/.config/xmind/
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: prepare xmind config 3
+  replace:
+    path: ~/.local/tmp/xmind/XMind_amd64/XMind.ini
+    regexp: '\.\/configuration'
+    replace: '/home/{{ ansible_user }}/.config/xmind/configuration'
+
+- name: prepare xmind config 4
+  replace:
+    path: ~/.local/tmp/xmind/XMind_amd64/XMind.ini
+    regexp: '\.\.\/workspace'
+    replace: '/home/{{ ansible_user }}/.config/xmind/workspace'
+
+- name: prepare xmind config 5
+  lineinfile:
+    path: ~/.local/tmp/xmind/XMind_amd64/XMind.ini
+    line: '--add-modules=java.se.ee'
+    insertafter: EOF
+
+- name: create xmind local fonts directory
+  file:
+    path: ~/.local/share/fonts
+    state: directory
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: install xmind fonts 1
+  synchronize:
+    src: ~/.local/tmp/xmind/fonts
+    dest: ~/.local/share/fonts
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: install xmind fonts 2
+  command: fc-cache -f
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: install xmind
+  synchronize:
+    src: ~/.local/tmp/xmind
+    dest: ~/.local/apps
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: create desktop shortcut directory for xmind
+  file:
+    path: ~/.local/share/applications
+    state: directory
+  when: xmind_installer_stat_output.stat.exists == False
+
+- name: create desktop shortcut for xmind
+  copy:
+    content: |
+      [Desktop Entry]
+      Comment=Create and share mind maps
+      Exec=/home/{{ ansible_user }}/.local/apps/xmind/XMind_amd64/XMind %F
+      Path=/home/{{ ansible_user }}/.local/apps/xmind/XMind_amd64
+      Name=XMind
+      Terminal=false
+      Type=Application
+      Categories=Office;Productivity
+      Icon=xmind
+    dest: ~/.local/share/applications/XMind.desktop

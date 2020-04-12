@@ -1,0 +1,48 @@
+- name: install developer tools
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - jq
+  - meld
+  - tree
+  #- remmina
+  #- remmina-plugin-rdp
+
+#- name: create installers temp directory
+#  file: path=~/.local/tmp state=directory
+#
+#- name: check if peco installer already downloaded
+#  stat: path=~/.local/tmp/peco_linux_amd64.tar.gz
+#  register: peco_installer_stat_output
+#
+#- name: download peco
+#  get_url:
+#    url: https://github.com/peco/peco/releases/download/v0.5.3/peco_linux_amd64.tar.gz
+#    dest: ~/.local/tmp/peco_linux_amd64.tar.gz
+#  when: peco_installer_stat_output.stat.exists == False
+#
+#- name: unpack peco
+#  unarchive:
+#    src: ~/.local/tmp/peco_linux_amd64.tar.gz
+#    dest: ~/.local/tmp
+#  when: peco_installer_stat_output.stat.exists == False
+#
+#- name: create target install directory
+#  file: path=~/.local/bin state=directory
+#  when: peco_installer_stat_output.stat.exists == False
+#
+#- name: install peco
+#  copy:
+#    src: ~/.local/tmp/peco_linux_amd64/peco
+#    dest: ~/.local/bin/peco
+#    mode: u+rx
+#  when: peco_installer_stat_output.stat.exists == False
+#
+#- name: cleanup peco installer
+#  file:
+#    state: absent
+#    path: ~/.local/tmp/peco_linux_amd64/
+#  when: peco_installer_stat_output.stat.exists == False

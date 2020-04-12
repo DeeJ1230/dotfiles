@@ -1,0 +1,39 @@
+- name: creates ssh config directory
+  file: path=~/.ssh state=directory
+
+- name: apply ssh config with proxy
+  copy: src=./.dotfiles/.ssh/config-proxy dest=~/.ssh/config
+  when: proxy != ""
+
+- name: apply ssh config without proxy
+  copy: src=./.dotfiles/.ssh/config-noproxy dest=~/.ssh/config
+  when: proxy == ""
+
+- name: patch ssh proxy settings
+  replace:
+    path: ~/.ssh/config
+    regexp: '__PROXY__'
+    replace: "{{ proxy }}"
+  when: proxy != ""
+
+- replace:
+    path: ~/.ssh/config
+    regexp: '\w+:\/\/'
+    replace: ""
+  when: proxy != ""
+
+- replace:
+    path: ~/.ssh/config
+    regexp: '\/'
+    replace: ""
+  when: proxy != ""
+
+- name: install ssh tools
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - sshfs
+  - sshpass

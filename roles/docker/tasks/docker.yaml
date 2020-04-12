@@ -1,0 +1,75 @@
+- name: add docker gpg
+  become: yes
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: add docker-ce repository if not bionic
+  become: true
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+  when: ansible_distribution_release != "bionic"
+
+- name: add artful docker-ce repository in bionic
+  become: true
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu artful stable"
+    state: present
+  when: ansible_distribution_release == "bionic"
+
+- name: install docker-ce
+  become: true
+  apt:
+    pkg: "docker-ce"
+    state: latest
+    update_cache: yes
+
+- name: adding current user to docker group
+  become: true
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+- name: creates docker service config directory
+  become: yes
+  file: path=/etc/systemd/system/docker.service.d state=directory
+  when: proxy != ""
+
+- name: check if proxy already configured for docker
+  stat: path=/etc/systemd/system/docker.service.d/http-proxy.conf
+  register: proxy_stat_output
+
+- name: apply docker service config with proxy
+  become: yes
+  copy: src=./.dotfiles/.docker/docker.service.d/http-proxy.conf dest=/etc/systemd/system/docker.service.d/http-proxy.conf
+  when: proxy != "" and proxy_stat_output.stat.exists == False
+
+- name: patch docker service proxy settings
+  become: yes
+  replace:
+    path: /etc/systemd/system/docker.service.d/http-proxy.conf
+    regexp: '__PROXY__'
+    replace: "{{ proxy }}"
+  when: proxy != "" and proxy_stat_output.stat.exists == False
+
+- name: check if docker config was patched
+  become: true
+  command: bash -c "cat /lib/systemd/system/docker.service | grep EnvironmentFile | wc -l"
+  register: docker_patched
+
+- name: apply patch to docker service config
+  become: yes
+  patch:
+    src: .dotfiles/.docker/docker.service.patch
+    dest: /lib/systemd/system/docker.service
+  when: docker_patched.stdout == "0"
+
+- name: apply patch to default docker settings
+  become: yes
+  patch:
+    src: .dotfiles/.docker/docker.patch
+    dest: /etc/default/docker
+  notify: restart docker service
+  when: docker_patched.stdout == "0"

@@ -1,0 +1,21 @@
+- name: add gcloud-sdk gpg
+  become: yes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: add gcloud-sdk repository
+  become: true
+  apt_repository:
+    repo: "deb http://packages.cloud.google.com/apt cloud-sdk-{{ ansible_distribution_release }} main"
+    state: present
+
+- name: install gcloud-sdk
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - google-cloud-sdk
+  - google-cloud-sdk-app-engine-go

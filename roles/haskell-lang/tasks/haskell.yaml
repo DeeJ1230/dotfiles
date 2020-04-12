@@ -1,0 +1,88 @@
+- name: install threadscope
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - threadscope
+  - libtinfo-dev
+
+- name: create installers temp directory
+  file: path=~/.local/tmp state=directory
+
+- name: check if stack installer already downloaded
+  stat: path=~/.local/tmp/stack.sh
+  register: stack_installer_stat_output
+
+- name: download stack
+  get_url:
+    url: https://get.haskellstack.org/
+    dest: ~/.local/tmp/stack.sh
+  when: stack_installer_stat_output.stat.exists == False
+
+- name: prepare stack installer
+  file:
+    path: ~/.local/tmp/stack.sh
+    mode: 0755
+  when: stack_installer_stat_output.stat.exists == False
+
+- name: install stack
+  command: ~/.local/tmp/stack.sh
+  register: stack_output
+  when: stack_installer_stat_output.stat.exists == False
+
+- name: setup stack
+  command: stack --resolver "{{ stack_resolver }}" setup
+
+- name: configure stack resolver
+  command: stack config set resolver "{{ stack_resolver }}"
+
+- name: get stack path
+  command: bash -c "stack path | grep 'compiler-bin' | awk '{print $2}'"
+  register: stack_path
+
+- name: cleanup ghc symlink
+  file:
+    state: absent
+    path: ~/.local/bin/ghc
+
+- name: create symlink to ghc
+  file:
+    src: "{{ stack_path.stdout }}/ghc"
+    dest: ~/.local/bin/ghc
+    state: link
+
+- name: cleanup runhaskell symlink
+  file:
+    state: absent
+    path: ~/.local/bin/runhaskell
+
+- name: create symlink to runhaskell
+  file:
+    src: "{{ stack_path.stdout }}/runhaskell"
+    dest: ~/.local/bin/runhaskell
+    state: link
+
+- name: install hdevtools through stack
+  command: stack install hdevtools
+
+- name: install hlint through stack
+  command: stack install hlint
+
+- name: install brittany through stack
+  command: stack install brittany
+
+- name: install hasktags through stack
+  command: stack install hasktags
+
+- name: install hoogle through stack
+  command: stack install hoogle
+
+- name: generate hoogle database
+  command: bash -c 'if [ "{{ generate_hoogle_database }}" == "yes" ]; then ~/.local/bin/hoogle generate --haskell; else echo Skipped generating hoogle database as per configuration; fi'
+  register: hoogle_database_generation_log
+
+#- name: show output
+#  debug:
+#    msg: '{{ hoogle_database_generation_log.stdout }}'

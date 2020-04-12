@@ -1,0 +1,89 @@
+- name: install terminal tools
+  become: yes
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes
+  with_items:
+  - zsh
+  - zsh-syntax-highlighting
+  - tmux
+  - terminator
+  - direnv
+
+- name: enable zsh as default shell
+  become: true
+  user: name={{ ansible_user }} shell=/usr/bin/zsh
+
+- name: check if oh-my-zsh already installed
+  stat: path=~/.oh-my-zsh
+  register: ohmyzsh_stat_output
+
+- name: create installers temp directory
+  file: path=~/.local/tmp state=directory
+  when: ohmyzsh_stat_output.stat.exists == False
+
+- name: fetch oh-my-zsh installer
+  get_url:
+    url: https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+    dest: ~/.local/tmp/ohmyzsh-install.sh
+    mode: 0750
+  when: ohmyzsh_stat_output.stat.exists == False
+
+- name: prepare oh-my-zsh installer
+  patch:
+    src: ./.dotfiles/ohmyzsh-install.patch
+    dest: ~/.local/tmp/ohmyzsh-install.sh
+  when: ohmyzsh_stat_output.stat.exists == False
+
+- name: stop oh-my-zsh installer from enabling zsh
+  replace:
+    path: ~/.local/tmp/ohmyzsh-install.sh
+    regexp: '^(\s+)chsh\s'
+    replace: '\1# chsh '
+  when: ohmyzsh_stat_output.stat.exists == False
+
+- name: install oh-my-zsh
+  command: ~/.local/tmp/ohmyzsh-install.sh
+  when: ohmyzsh_stat_output.stat.exists == False
+
+- name: cleanup oh-my-zsh installer
+  file:
+    state: absent
+    path: ~/.local/tmp/ohmyzsh-install.sh
+  when: ohmyzsh_stat_output.stat.exists == False
+
+- name: check if powerlevel9k theme is installed for oh-my-zsh
+  stat: path=~/.oh-my-zsh/custom/themes/powerlevel9k
+  register: powerlevel9k_stat_output
+
+- name: create target directory for powerlevel9k
+  file: path=~/.oh-my-zsh/custom/themes/powerlevel9k state=directory
+  when: powerlevel9k_stat_output.stat.exists == False
+
+- name: fetch powerlevel9k
+  git:
+    repo: "https://github.com/bhilburn/powerlevel9k.git"
+    dest: "~/.oh-my-zsh/custom/themes/powerlevel9k"
+  when: powerlevel9k_stat_output.stat.exists == False
+
+- name: creates terminator config directory
+  file: path=~/.config/terminator state=directory
+
+- name: apply terminator config
+  copy: src=./.dotfiles/.config/terminator/config dest=~/.config/terminator/config
+
+- name: make terminator a default terminal emulator
+  become: yes
+  alternatives:
+    name: x-terminal-emulator
+    path: /usr/bin/terminator
+
+- name: apply zsh config
+  copy: src=./.dotfiles/.zshrc dest=~/.zshrc
+
+- name: apply bash config
+  copy: src=./.dotfiles/.bashrc dest=~/.bashrc
+
+- name: apply tmux config
+  copy: src=./.dotfiles/.tmux.conf dest=~/.tmux.conf

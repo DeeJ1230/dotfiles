@@ -1,0 +1,18 @@
+- name: create installers directory
+  file: path=~/.local/tmp state=directory
+
+- name: check if draw.io installer already downloaded
+  stat: path=~/.local/tmp/draw.io-amd64-8.8.0.deb
+  register: drawio_installer_stat_output
+
+- name: download draw.io
+  get_url:
+    url: https://github.com/jgraph/drawio-desktop/releases/download/v8.8.0/draw.io-amd64-8.8.0.deb
+    dest: ~/.local/tmp/draw.io-amd64-8.8.0.deb
+  when: drawio_installer_stat_output.stat.exists == False
+
+- name: install draw.io
+  become: yes
+  apt:
+    deb: "/home/{{ ansible_user }}/.local/tmp/draw.io-amd64-8.8.0.deb"
+  when: drawio_installer_stat_output.stat.exists == False
